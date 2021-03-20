@@ -8,7 +8,12 @@ class UserModel extends User {
   final String email;
   final String token;
 
-  UserModel({this.id, this.name, this.email, this.token});
+  UserModel(
+      {required this.id,
+      required this.name,
+      required this.email,
+      required this.token})
+      : super(id: id, email: email, name: name);
 
   Map<String, dynamic> toMap() {
     return {
@@ -20,8 +25,6 @@ class UserModel extends User {
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
-    if (map == null) return null;
-
     return UserModel(
       id: map['id'],
       name: map['name'],

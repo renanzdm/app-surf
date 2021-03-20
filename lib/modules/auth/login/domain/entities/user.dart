@@ -2,7 +2,7 @@ class User {
   final String id;
   final String name;
   final String email;
-  final String token;
+  final String? token;
 
-  User({this.id, this.name, this.email, this.token});
+  User({required this.id, required this.name, required this.email, this.token});
 }

@@ -1,7 +1,7 @@
 class Failure {
-  final String errorMessage;
-  final int code;
-  final String error;
+  final String? errorMessage;
+  final int? code;
+  final String? error;
 
   Failure({this.errorMessage, this.code, this.error});
 

@@ -10,7 +10,7 @@ import 'shared/utils/navigator_key.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _dotenv.load(fileName: ".env");
-  configureDependencies();
+  loadDependecies();
   runApp(MyApp());
   SystemChrome.setEnabledSystemUIOverlays([]);
 }

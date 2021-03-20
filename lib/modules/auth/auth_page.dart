@@ -9,6 +9,7 @@ class AuthPage extends StatelessWidget {
     var sizes = MediaQuery.of(context).size;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
         height: sizes.height,
         width: sizes.width,

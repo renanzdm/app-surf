@@ -1,14 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:injectable/injectable.dart';
 import 'package:surf_app/modules/auth/register/domain/error/register_errors.dart';
 import 'package:surf_app/infrastructure/extensions/valid_email.dart';
 import 'package:surf_app/modules/auth/register/presenter/usecase/i_register_usecase.dart';
 
 part 'register_state.dart';
 
-@Injectable()
 class RegisterCubit extends Cubit<RegisterState> {
   RegisterCubit(
     this._registerUC,
@@ -28,14 +26,14 @@ class RegisterCubit extends Cubit<RegisterState> {
         (result) => emit(RegisterLoadedState()));
   }
 
-  String validateName(String text) {
+  String? validateName(String? text) {
     if (text == null || text == '') {
       return 'Campo Obrigatorio';
     }
     return null;
   }
 
-  String validateSenha(String text) {
+  String? validateSenha(String? text) {
     if (text == null || text == '') {
       return 'Campo Obrigatorio';
     } else if (text.length < 6) {
@@ -44,8 +42,8 @@ class RegisterCubit extends Cubit<RegisterState> {
     return null;
   }
 
-  String validateEmail(String text) {
-    if (text.isValidEmail()) {
+  String? validateEmail(String? text) {
+    if (text != null && text.isValidEmail()) {
       return null;
     }
     return 'Email invalido';

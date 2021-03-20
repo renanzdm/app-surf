@@ -1,19 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'i_rest_client.dart';
 import 'rest_client_exception.dart';
 
-@LazySingleton(as: IRestClient)
 class CustomDio implements IRestClient {
-  Dio _dio;
+  Dio _dio = Dio();
 
   BaseOptions options = BaseOptions(
-    baseUrl: env['base_url'],
-    connectTimeout: int.parse(env['dio_connectTimeout']),
-    receiveTimeout: int.parse(env['dio_receiveTimeout']),
+    baseUrl: env['base_url']!,
+    connectTimeout: int.parse(env['dio_connectTimeout']!),
+    receiveTimeout: int.parse(env['dio_receiveTimeout']!),
   );
 
   @override
@@ -30,32 +28,30 @@ class CustomDio implements IRestClient {
 
 class ErrorInterceptor extends InterceptorsWrapper {
   @override
-  Future onError(DioError err) {
-    throw RestClientException(err);
+  void onError(DioError err, ErrorInterceptorHandler handler) {
+    throw (RestClientException(err.error));
   }
 }
 
 class AuthInterceptor extends InterceptorsWrapper {
-  SharedPreferences _preferences;
+  SharedPreferences? _prefs;
 
   @override
-  Future onError(DioError err) async {
-    return err;
-  }
+  void onError(DioError err, ErrorInterceptorHandler handler) {}
 
   @override
-  Future onRequest(RequestOptions options) async {
+  Future<void> onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    _prefs = await SharedPreferences.getInstance();
     if (options.headers.containsKey('requireToken')) {
       options.headers.remove('requireToken');
-      _preferences = await SharedPreferences.getInstance();
-      var token = _preferences.getString('token-user');
+
+      var token = _prefs?.get('token-user');
       options.headers.addAll({'x-access-token': token});
     }
-    return options;
+    return handler.next(options);
   }
 
   @override
-  Future onResponse(Response response) async {
-    return response;
-  }
+  void onResponse(Response response, ResponseInterceptorHandler handler) {}
 }

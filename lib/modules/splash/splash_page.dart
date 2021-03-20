@@ -10,11 +10,10 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  SharedPreferences _preferences;
-
   @override
   void initState() {
     Future.delayed(const Duration(seconds: 4), () async {
+      SharedPreferences _preferences;
       _preferences = await SharedPreferences.getInstance();
       var token = _preferences.containsKey('token-user');
       Navigator.pushReplacement(

@@ -19,18 +19,18 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
-    cubit.listen((state) {
+    cubit.stream.listen((state) {
       if (state is RegisterErrorState) {
         BotToast.showNotification(
           title: (_) => Text('Erro ao cadastrar Usuário'),
           subtitle: (_) => state.error is RegisterErrorEmailInUse
               ? Text('Email ja se encontra em uso')
               : Text('Tente novamente em instantes'),
-          backgroundColor: Colors.redAccent,
+          backgroundColor: Colors.white,
           duration: const Duration(seconds: 4),
           leading: (_) => Icon(
             Icons.warning_amber_rounded,
-            color: Colors.white,
+            color: Colors.red,
             size: 50,
           ),
         );
@@ -38,11 +38,11 @@ class _RegisterPageState extends State<RegisterPage> {
         BotToast.showNotification(
           title: (_) => Text('Sucesso ao cadastrar o usuario'),
           subtitle: (_) => Text('Usuario cadastrado'),
-          backgroundColor: Colors.greenAccent.shade200,
+          backgroundColor: Colors.white,
           duration: const Duration(seconds: 4),
           leading: (_) => Icon(
             Icons.warning_amber_rounded,
-            color: Colors.white,
+            color: Colors.blue,
             size: 50,
           ),
         );
@@ -138,12 +138,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       Center(
                         child: InkWell(
                           onTap: () async {
-                            if (_formKey.currentState.validate()) {
+                            if (_formKey.currentState!.validate()) {
                               await cubit.register();
                             }
                           },
                           child: BlocBuilder<RegisterCubit, RegisterState>(
-                            cubit: cubit,
+                            bloc: cubit,
                             buildWhen: (previous, state) => previous != state,
                             builder: (_, state) {
                               return AnimatedContainer(

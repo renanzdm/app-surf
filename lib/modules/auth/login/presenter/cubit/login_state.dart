@@ -16,7 +16,7 @@ class LoginLoadedState extends LoginState {}
 class LoginErrorState extends LoginState {
   final LoginError error;
 
-  LoginErrorState({this.error});
+  LoginErrorState({required this.error});
   @override
   List<Object> get props => [error];
 }

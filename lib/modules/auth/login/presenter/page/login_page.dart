@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:surf_app/infrastructure/dependecy_injection/service_locator.dart';
 import 'package:surf_app/modules/auth/login/domain/error/login_errors.dart';
 import 'package:surf_app/modules/auth/login/presenter/cubit/login_cubit.dart';
+import 'package:surf_app/modules/home/presenter/pages/home_page.dart';
 
 import 'package:surf_app/shared/widgets/textfield_custom.dart';
 
@@ -20,35 +21,25 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    cubit.listen((state) {
+    cubit.stream.listen((state) {
       if (state is LoginErrorState) {
         BotToast.showNotification(
-          title: (_) => Text('Erro ao cadastrar Usuário'),
+          title: (_) => Text('Erro ao logar usuario'),
           subtitle: (_) => state.error is LoginErrorInvalidUserOrPassword
               ? Text('Email ou senha estao errados')
               : Text('Tente novamente em instantes'),
-          backgroundColor: Colors.redAccent,
+          backgroundColor: Colors.white,
           duration: const Duration(seconds: 4),
           leading: (_) => Icon(
             Icons.warning_amber_rounded,
-            color: Colors.white,
+            color: Colors.red,
             size: 50,
           ),
         );
       } else if (state is LoginLoadedState) {
-        BotToast.showNotification(
-          title: (_) => Text('Sucesso ao cadastrar o usuario'),
-          subtitle: (_) => Text('Usuario cadastrado'),
-          backgroundColor: Colors.greenAccent.shade200,
-          duration: const Duration(seconds: 4),
-          leading: (_) => Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.white,
-            size: 50,
-          ),
-        );
         Future.delayed(const Duration(seconds: 2), () {
-          Navigator.pop(context);
+          Navigator.push(
+              context, MaterialPageRoute(builder: (_) => HomePage()));
         });
       }
     });
@@ -56,36 +47,37 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    var sizes = MediaQuery.of(context).size;
-    return LayoutBuilder(builder: (context, constraints) {
-      return Container(
-        height: constraints.minHeight,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(Colors.black54, BlendMode.darken),
-            image: AssetImage(
-              'assets/images/3.jpg',
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(Colors.black54, BlendMode.darken),
+          image: AssetImage(
+            'assets/images/3.jpg',
           ),
         ),
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-          ),
+      ),
+      child: Scaffold(
+        appBar: AppBar(
           backgroundColor: Colors.transparent,
-          body: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Container(
-                height: sizes.height,
-                width: sizes.width,
-                padding: const EdgeInsets.all(16),
+          elevation: 0,
+        ),
+        backgroundColor: Colors.transparent,
+        body: Form(
+          key: _formKey,
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Container(
+              height: constraints.maxHeight,
+              width: constraints.maxWidth,
+              padding: const EdgeInsets.all(16),
+              child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(
+                      height: constraints.maxHeight * .1,
+                    ),
                     Text(
                       'Entrar',
                       style: TextStyle(
@@ -95,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(
-                      height: sizes.height * .05,
+                      height: constraints.maxHeight * .05,
                     ),
                     TextFieldCustom(
                       labelText: 'E-mail',
@@ -128,12 +120,12 @@ class _LoginPageState extends State<LoginPage> {
                     Center(
                       child: InkWell(
                         onTap: () {
-                          if (_formKey.currentState.validate()) {
+                          if (_formKey.currentState!.validate()) {
                             cubit.login();
                           }
                         },
                         child: BlocBuilder<LoginCubit, LoginState>(
-                          cubit: cubit,
+                          bloc: cubit,
                           buildWhen: (previous, state) => previous != state,
                           builder: (_, state) {
                             return AnimatedContainer(
@@ -166,15 +158,15 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(
-                      height: sizes.height * .2,
+                      height: constraints.maxHeight * .2,
                     ),
                   ],
                 ),
               ),
-            ),
-          ),
+            );
+          }),
         ),
-      );
-    });
+      ),
+    );
   }
 }

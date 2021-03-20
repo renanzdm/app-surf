@@ -3,8 +3,8 @@ class UserId {
   String name;
   String email;
   UserId({
-    this.id,
-    this.name,
-    this.email,
+    required this.id,
+    required this.name,
+    required this.email,
   });
 }

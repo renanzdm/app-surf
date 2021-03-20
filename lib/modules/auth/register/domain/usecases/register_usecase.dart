@@ -1,10 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:injectable/injectable.dart';
 import 'package:surf_app/modules/auth/register/domain/error/register_errors.dart';
 import 'package:surf_app/modules/auth/register/domain/repositories/i_register_repository.dart';
 import 'package:surf_app/modules/auth/register/presenter/usecase/i_register_usecase.dart';
 
-@Injectable(as: IRegisterUseCase)
 class Register implements IRegisterUseCase {
   final IRegisterUserRepository _repository;
 

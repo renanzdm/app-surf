@@ -15,7 +15,7 @@ class RegisterLoadedState extends RegisterState {}
 
 class RegisterErrorState extends RegisterState {
   final RegisterErrors error;
-  RegisterErrorState({this.error});
+  RegisterErrorState({required this.error});
   @override
   List<Object> get props => [error];
 }

@@ -1,10 +1,8 @@
-import 'package:injectable/injectable.dart';
 import 'package:surf_app/modules/auth/register/domain/error/register_errors.dart';
 import 'package:dartz/dartz.dart';
 import 'package:surf_app/modules/auth/register/domain/repositories/i_register_repository.dart';
 import 'package:surf_app/modules/auth/register/infra/datasource/i_user_register_datasource.dart';
 
-@Injectable(as: IRegisterUserRepository)
 class UserRegisterRepository implements IRegisterUserRepository {
   final IUserRegisterDatasource _datasource;
 

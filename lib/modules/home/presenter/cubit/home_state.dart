@@ -11,11 +11,18 @@ class HomeInitial extends HomeState {}
 
 class HomeLoadingState extends HomeState {}
 
-class HomeLoadedState extends HomeState {}
+class HomeLoadedState extends HomeState {
+  late final UserId userId;
+
+  HomeLoadedState({required this.userId});
+
+  @override
+  List<Object> get props => [userId];
+}
 
 class HomeErrorState extends HomeState {
   final GetUserInfoError error;
-  HomeErrorState({this.error});
+  HomeErrorState({required this.error});
   @override
   List<Object> get props => [error];
 }
