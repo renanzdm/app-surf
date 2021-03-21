@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:surf_app/infrastructure/rest_client/rest_client_exception.dart';
 
 import 'i_rest_client.dart';
-import 'rest_client_exception.dart';
 
 class CustomDio implements IRestClient {
   Dio _dio = Dio();
@@ -29,7 +29,7 @@ class CustomDio implements IRestClient {
 class ErrorInterceptor extends InterceptorsWrapper {
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) {
-    throw (RestClientException(err.error));
+    return super.onError(err, handler);
   }
 }
 
@@ -37,7 +37,8 @@ class AuthInterceptor extends InterceptorsWrapper {
   SharedPreferences? _prefs;
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {}
+  void onError(DioError err, ErrorInterceptorHandler handler) =>
+      super.onError(RestClientException(err), handler);
 
   @override
   Future<void> onRequest(
@@ -49,9 +50,10 @@ class AuthInterceptor extends InterceptorsWrapper {
       var token = _prefs?.get('token-user');
       options.headers.addAll({'x-access-token': token});
     }
-    return handler.next(options);
+    return super.onRequest(options, handler);
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {}
+  void onResponse(Response response, ResponseInterceptorHandler handler) =>
+      super.onResponse(response, handler);
 }

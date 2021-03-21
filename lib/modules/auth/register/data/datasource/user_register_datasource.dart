@@ -10,6 +10,7 @@ class UserRegisterDatasource implements IUserRegisterDatasource {
 
   @override
   Future<void> saveUser(String name, String email, String password) async {
+    print('entrou no data');
     try {
       final client = _client.instance();
       await client.post('/users',
