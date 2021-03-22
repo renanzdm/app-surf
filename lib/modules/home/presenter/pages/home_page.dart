@@ -4,8 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:surf_app/infrastructure/dependecy_injection/service_locator.dart';
 import 'package:surf_app/modules/auth/auth_page.dart';
 import 'package:surf_app/modules/home/presenter/cubit/home_cubit.dart';
-import 'package:surf_app/infrastructure/extensions/capitalize.dart';
 import 'package:surf_app/modules/home/presenter/widgets/search_field.dart';
+import 'package:surf_app/modules/home/presenter/widgets/search_helper.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
     content: Text('Opps...ocorreu um erro realize o login novamente'),
     backgroundColor: Colors.red,
   );
+  final List<String> listAux = List.generate(10, (index) => 'Resultado $index');
 
   @override
   void initState() {
@@ -72,13 +73,7 @@ class _HomePageState extends State<HomePage> {
               child: BlocBuilder<HomeCubit, HomeState>(
                 bloc: cubit,
                 builder: (context, state) {
-                  if (state is HomeErrorState) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation(Colors.white),
-                      ),
-                    );
-                  } else if (state is HomeLoadedState) {
+                  if (state is HomeLoadedState) {
                     return SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,8 +104,19 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SearchField(
                             width: constraints.maxWidth,
+                            onChanged: (value) {
+                              showSearch(
+                                  context: context,
+                                  delegate: SearchHelper(listAux));
+                            },
                           )
                         ],
+                      ),
+                    );
+                  } else if (state is HomeLoadingState) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(Colors.white),
                       ),
                     );
                   }
