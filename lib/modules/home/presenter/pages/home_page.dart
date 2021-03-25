@@ -5,8 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:surf_app/infrastructure/dependecy_injection/service_locator.dart';
 import 'package:surf_app/modules/auth/auth_page.dart';
 import 'package:surf_app/modules/home/presenter/cubit/home_cubit.dart';
-import 'package:surf_app/modules/home/presenter/widgets/search_field.dart';
-import 'package:surf_app/modules/home/presenter/widgets/search_helper.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,60 +18,12 @@ class _HomePageState extends State<HomePage> {
     backgroundColor: Colors.red,
   );
   late FloatingSearchBarController controller;
-  static const historyLength = 5;
-
-  List<String> _searchHistory = [
-    'fuchsia',
-    'flutter',
-    'widgets',
-    'resocoder',
-  ];
-  List<String>? filteredSearchHistory;
-
-  String? selectedTerm;
-
-  List<String> filterSearchTerms({
-    required String? filter,
-  }) {
-    if (filter != null && filter.isNotEmpty) {
-      // Reversed because we want the last added items to appear first in the UI
-      return _searchHistory.reversed
-          .where((term) => term.startsWith(filter))
-          .toList();
-    } else {
-      return _searchHistory.reversed.toList();
-    }
-  }
-
-  void addSearchTerm(String term) {
-    if (_searchHistory.contains(term)) {
-      // This method will be implemented soon
-      putSearchTermFirst(term);
-      return;
-    }
-    _searchHistory.add(term);
-    if (_searchHistory.length > historyLength) {
-      _searchHistory.removeRange(0, _searchHistory.length - historyLength);
-    }
-    // Changes in _searchHistory mean that we have to update the filteredSearchHistory
-    filteredSearchHistory = filterSearchTerms(filter: null);
-  }
-
-  void deleteSearchTerm(String term) {
-    _searchHistory.removeWhere((t) => t == term);
-    filteredSearchHistory = filterSearchTerms(filter: null);
-  }
-
-  void putSearchTermFirst(String term) {
-    deleteSearchTerm(term);
-    addSearchTerm(term);
-  }
 
   @override
   void initState() {
     cubit.getUserInfo();
     controller = FloatingSearchBarController();
-    filteredSearchHistory = filterSearchTerms(filter: null);
+    cubit.filteredSearchHistory = cubit.filterSearchTerms(filter: null);
 
     WidgetsBinding.instance?.addPostFrameCallback(
       (timeStamp) {
@@ -109,15 +59,30 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       // This is handled by the search bar itself.
       resizeToAvoidBottomInset: false,
-      body: Column(
-        children: [
-          Expanded(child: buildFloatingSearchBar()),
-        ],
+      body: BlocBuilder<HomeCubit, HomeState>(
+        bloc: cubit,
+        builder: (_, state) {
+          if (state is HomeErrorState) {
+            return Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Colors.red),
+              ),
+            );
+          } else if (state is HomeUserLoadedState) {
+            return _buildHomeScreen();
+          } else if (state is HomeLoadingState) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            return SizedBox.shrink();
+          }
+        },
       ),
     );
   }
 
-  Widget buildFloatingSearchBar() {
+  Widget _buildFloatingSearchBar() {
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
@@ -134,13 +99,13 @@ class _HomePageState extends State<HomePage> {
       debounceDelay: const Duration(milliseconds: 700),
       onQueryChanged: (query) {
         setState(() {
-          filteredSearchHistory = filterSearchTerms(filter: query);
+          cubit.filteredSearchHistory = cubit.filterSearchTerms(filter: query);
         });
       },
       onSubmitted: (query) {
         setState(() {
-          addSearchTerm(query);
-          selectedTerm = query;
+          cubit.addSearchTerm(query);
+          cubit.selectedTerm = query;
         });
         controller.close();
       },
@@ -165,7 +130,7 @@ class _HomePageState extends State<HomePage> {
             elevation: 4,
             child: Builder(
               builder: (context) {
-                if (filteredSearchHistory!.isEmpty &&
+                if (cubit.filteredSearchHistory!.isEmpty &&
                     controller.query.isEmpty) {
                   return Container(
                     height: 56,
@@ -178,14 +143,14 @@ class _HomePageState extends State<HomePage> {
                       style: Theme.of(context).textTheme.caption,
                     ),
                   );
-                } else if (filteredSearchHistory!.isEmpty) {
+                } else if (cubit.filteredSearchHistory!.isEmpty) {
                   return ListTile(
                     title: Text(controller.query),
                     leading: const Icon(Icons.search),
                     onTap: () {
                       setState(() {
-                        addSearchTerm(controller.query);
-                        selectedTerm = controller.query;
+                        cubit.addSearchTerm(controller.query);
+                        cubit.selectedTerm = controller.query;
                       });
                       controller.close();
                     },
@@ -193,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                 } else {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: filteredSearchHistory!
+                    children: cubit.filteredSearchHistory!
                         .map(
                           (term) => ListTile(
                             title: Text(
@@ -206,14 +171,14 @@ class _HomePageState extends State<HomePage> {
                               icon: const Icon(Icons.clear),
                               onPressed: () {
                                 setState(() {
-                                  deleteSearchTerm(term);
+                                  cubit.deleteSearchTerm(term);
                                 });
                               },
                             ),
                             onTap: () {
                               setState(() {
-                                putSearchTermFirst(term);
-                                selectedTerm = term;
+                                cubit.putSearchTermFirst(term);
+                                cubit.selectedTerm = term;
                               });
                               controller.close();
                             },
@@ -227,6 +192,25 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildHomeScreen() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.blueAccent, Colors.blue.shade300],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          Expanded(child: _buildFloatingSearchBar()),
+        ],
+      ),
     );
   }
 }
