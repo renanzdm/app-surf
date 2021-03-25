@@ -24,7 +24,7 @@ import 'package:surf_app/modules/home/infra/datasources/i_get_places_datasource.
 import 'package:surf_app/modules/home/infra/datasources/i_get_user_infos_datasource.dart';
 import 'package:surf_app/modules/home/infra/repository/get_places_repository.dart';
 import 'package:surf_app/modules/home/infra/repository/get_user_infos_repository.dart';
-import 'package:surf_app/modules/home/presenter/cubit/home_cubit.dart';
+import 'package:surf_app/modules/home/presenter/cubit/home_controller.dart';
 import 'package:surf_app/modules/home/presenter/usecases/i_home_usercase.dart';
 
 final getIt = GetIt.instance;
@@ -48,7 +48,7 @@ void loadDependecies() {
   getIt.registerFactory<IRegisterUserRepository>(
       () => UserRegisterRepository(getIt<IUserRegisterDatasource>()));
   getIt.registerFactory<LoginCubit>(() => LoginCubit(getIt<ILoginUseCase>()));
-  getIt.registerFactory<HomeCubit>(() => HomeCubit(getIt<IHomeUseCase>()));
+  getIt.registerFactory<HomeController>(() => HomeController(getIt<IHomeUseCase>()));
   getIt.registerFactory<IRegisterUseCase>(
       () => Register(getIt<IRegisterUserRepository>()));
   getIt.registerFactory<RegisterCubit>(

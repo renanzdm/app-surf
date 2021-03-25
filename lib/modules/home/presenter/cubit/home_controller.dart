@@ -1,24 +1,29 @@
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:surf_app/modules/home/domain/entities/user_id.dart';
-
 import 'package:surf_app/modules/home/domain/errors/get_user_info_errors.dart';
 import 'package:surf_app/modules/home/presenter/usecases/i_home_usercase.dart';
 
-part 'home_state.dart';
+enum HomeState { success, loading, error }
 
-class HomeCubit extends Cubit<HomeState> {
-  HomeCubit(
-    this._homeUC,
-  ) : super(HomeInitial());
-
+class HomeController {
   final IHomeUseCase _homeUC;
 
+  HomeController(this._homeUC,);
+
+  ValueNotifier<UserId>? userId;
+  ValueNotifier<GetUserInfoError>? error;
+  ValueNotifier<HomeState> state = ValueNotifier(HomeState.loading);
+
   Future<void> getUserInfo() async {
-    emit(HomeLoadingState());
+    state.value = HomeState.loading;
     var res = await _homeUC.getUserInformations();
-    res.fold((l) => emit(HomeErrorState(error: l)),
-        (r) => emit(HomeUserLoadedState(userId: r)));
+    res.fold((l) {
+      state.value = HomeState.error;
+      error = ValueNotifier(l);
+    }, (r) {
+      state.value = HomeState.success;
+      userId = ValueNotifier(r);
+    });
   }
 
   static const historyLength = 5;
